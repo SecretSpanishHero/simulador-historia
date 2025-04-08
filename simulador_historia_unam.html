@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador UNAM - Historia Universal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f2f2f2;
+    }
+    h1 {
+      color: #333;
+    }
+    .pregunta {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    }
+    .opcion {
+      margin: 5px 0;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .resultado {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simulador UNAM - Historia Universal</h1>
+  <div id="contenedor"></div>
+  <button onclick="evaluar()">Revisar respuestas</button>
+  <div class="resultado" id="resultado"></div>
+
+  <script>
+    let preguntas = [];
+
+    fetch("https://gist.githubusercontent.com/SecretSpanishHero/906310ed7dbc80860ff6a3e3d68b4745/raw/d82fd55e6f2ff45e4777127ac90d2722245d827a/preguntas_historia.json")
+      .then(res => res.json())
+      .then(data => {
+        preguntas = data;
+        cargarPreguntas();
+      });
+
+    function cargarPreguntas() {
+      const contenedor = document.getElementById("contenedor");
+      contenedor.innerHTML = "";
+      preguntas.forEach((p, i) => {
+        const div = document.createElement("div");
+        div.className = "pregunta";
+        div.innerHTML = `<p><b>${i + 1}.</b> ${p.texto}</p>` +
+          p.opciones.map((op, j) => {
+            const letra = String.fromCharCode(65 + j);
+            return `<div class='opcion'><label><input type='radio' name='p${i}' value='${letra}'> ${letra}) ${op}</label></div>`;
+          }).join("");
+        contenedor.appendChild(div);
+      });
+    }
+
+    function evaluar() {
+      let correctas = 0;
+      preguntas.forEach((p, i) => {
+        const seleccionada = document.querySelector(`input[name=p${i}]:checked`);
+        if (seleccionada && seleccionada.value === p.correcta) correctas++;
+      });
+      document.getElementById("resultado").innerText =
+        `Obtuviste ${correctas} de ${preguntas.length} respuestas correctas.`;
+    }
+  </script>
+</body>
+</html>
